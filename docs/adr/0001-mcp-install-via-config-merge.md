@@ -1,0 +1,3 @@
+# MCP servers install via config merge, not symlink
+
+Skills and agents install by symlinking a self-contained folder into a target's directory. MCP servers can't work that way — each one is just a JSON entry inside a shared config file (`~/.claude.json`/user-scope config for Claude Code, `~/.cursor/mcp.json` for Cursor), not a standalone file. We store each server's canonical definition at `mcp/<name>/mcp.json` (Claude Code's schema, which Cursor also accepts unmodified) and the installer merges it into each target's config — via `claude mcp add-json --scope user` for Claude Code, and a `jq` upsert for Cursor — rather than attempting any symlink trick. This is the only one of the three element types where `jq` is a required dependency.
