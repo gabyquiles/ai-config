@@ -15,6 +15,7 @@ Passes a request along a chain of potential handlers until one of them handles i
 - [Command](command.md) — Commands are often what gets passed along a Chain of Responsibility as the request object.
 - [Decorator](../gof/decorator.md) — structurally similar (linked wrapper objects), but every Decorator in the chain runs, whereas Chain of Responsibility stops at the first handler that takes the request (unless it deliberately forwards).
 - [Mediator](mediator.md) — Mediator centralizes communication through one object; Chain of Responsibility decentralizes it across a sequence of independent handlers.
+- [Choreography Saga](../event-driven/choreography-saga.md) — the cross-service analog: both decentralize handling across independent participants, each deciding locally whether/how to react, rather than a central object dictating the sequence.
 
 ## Example
 

@@ -15,6 +15,7 @@ Converts the interface of a class into another interface that clients expect. An
 - [Facade](facade.md) — both wrap something else, but Facade *simplifies* a broad interface for convenience, while Adapter *translates* one specific interface into another that's already expected — Facade defines a new, simpler API; Adapter conforms to an existing one.
 - [Bridge](bridge.md) — Bridge is designed up front to let abstraction and implementation vary independently; Adapter is typically applied after the fact, to make incompatible existing interfaces work together.
 - [Decorator](decorator.md) — Decorator keeps the same interface and adds behavior; Adapter changes the interface.
+- [Message Translator](../event-driven/message-translator.md) — the cross-service analog: both convert one interface/format into another the consuming side expects, just applied to messages crossing a broker instead of objects within one process.
 
 ## Example
 

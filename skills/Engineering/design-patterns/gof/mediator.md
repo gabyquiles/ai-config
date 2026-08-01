@@ -14,6 +14,7 @@ Defines an object that encapsulates how a set of other objects interact, so thos
 
 - [Facade](../gof/facade.md) — both introduce an intermediary, but Facade is a one-directional simplification for outside callers who don't participate in the subsystem; Mediator coordinates two-way communication *between* peer objects that all know about and talk through it.
 - [Observer](observer.md) — Mediator is frequently implemented using Observer: colleagues notify the mediator of changes (as observers would), and the mediator decides how to react and whom else to notify.
+- [Orchestration Saga](../event-driven/orchestration-saga.md) — the cross-service analog: both centralize coordination of multiple participants in one object so those participants don't need to know about each other, just about the coordinator.
 
 ## Example
 

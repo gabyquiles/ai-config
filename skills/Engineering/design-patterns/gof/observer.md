@@ -14,6 +14,7 @@ Defines a one-to-many dependency between objects so that when one object (the su
 
 - [Mediator](mediator.md) — Mediator is often built on top of Observer (colleagues observe the mediator), but Mediator additionally centralizes and coordinates *how* participants react to each other, not just that they're notified.
 - [Chain of Responsibility](../gof/chain-of-responsibility.md) — both decouple a source from receivers, but Observer broadcasts to *every* interested party, while Chain of Responsibility passes a request along until exactly one handler (usually) deals with it.
+- [Event Notification](../event-driven/event-notification.md) — the cross-service analog: Event Notification is Observer's subject/observer relationship stretched across process and service boundaries via a broker.
 
 ## Example
 

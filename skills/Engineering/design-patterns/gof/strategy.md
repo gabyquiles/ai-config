@@ -15,6 +15,7 @@ Defines a family of interchangeable algorithms, encapsulates each one behind a c
 - [State](state.md) — structurally identical, but Strategy is typically chosen by a client from outside and doesn't change itself over the object's lifetime, while State represents an object's own internal condition and transitions itself, usually driving its own changes.
 - [Command](../gof/command.md) — both encapsulate behavior as an object, but Command represents a specific request to be executed (and possibly undone/queued/logged), while Strategy represents one member of an interchangeable family of algorithms performing the same kind of computation.
 - [Template Method](template-method.md) — Template Method varies part of an algorithm via subclassing (inheritance); Strategy varies the *whole* algorithm via composition (a swappable object) — prefer Strategy when you need to change the algorithm at runtime rather than at compile time.
+- [Content-Based Router](../event-driven/content-based-router.md) — the cross-service analog: both pick one of several algorithms/destinations based on input, but Strategy selects behavior for a single caller while a router directs messages between independent producers and consumers.
 
 ## Example
 

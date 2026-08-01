@@ -15,6 +15,7 @@ Encapsulates a request (an action plus its receiver and arguments) as a standalo
 - [Chain of Responsibility](chain-of-responsibility.md) — Commands are frequently what gets passed along a chain of handlers.
 - [Memento](memento.md) — often paired with Command to implement undo: each Command can capture a Memento of state before executing, to restore later.
 - [Strategy](../gof/strategy.md) — structurally similar (both wrap a unit of behavior as an object passed around), but Strategy is about choosing *which algorithm* to run for an ongoing operation, while Command is about capturing *a specific request* (receiver + action + args) as a first-class, storable/queueable/undoable object.
+- [CQRS](../event-driven/cqrs.md) — CQRS's write side is naturally modeled as Command objects, each encapsulating one request to change state, kept separate from the read side.
 
 ## Example
 

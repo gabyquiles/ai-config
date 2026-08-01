@@ -15,6 +15,7 @@ Provides a surrogate or placeholder for another object to control access to it. 
 
 - [Decorator](decorator.md) — same structural shape (wraps an object behind the same interface), but Decorator *adds new responsibilities/behavior*, while Proxy *controls access* to functionality that's already fully defined by the real subject — Proxy usually doesn't change what the object does, just when/whether/how it's reached.
 - [Adapter](adapter.md) — Adapter changes an interface to something different; Proxy keeps the exact same interface as the object it stands in for.
+- [Claim Check](../event-driven/claim-check.md) — the cross-service analog: both use a lightweight stand-in to reference something larger stored elsewhere, deferring the cost of fetching the full thing until it's actually needed.
 
 ## Example
 

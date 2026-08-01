@@ -14,6 +14,7 @@ Captures and externalizes an object's internal state so it can be restored to th
 
 - [Command](command.md) — frequently paired: an undoable Command captures a Memento of the receiver's state before executing, and restores it on `undo()`.
 - [Prototype](../gof/prototype.md) — both involve copying state, but Prototype's copy is a new, independent, fully-usable object; a Memento's copy is opaque and exists only to restore the *same* originator later.
+- [Event Sourcing](../event-driven/event-sourcing.md) — both capture state so it can be restored later, but Memento snapshots one object's state at a point in time, while Event Sourcing stores the full sequence of changes and derives state by replaying them.
 
 ## Example
 

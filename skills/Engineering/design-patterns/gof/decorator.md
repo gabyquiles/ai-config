@@ -15,6 +15,7 @@ Attaches additional responsibilities to an object dynamically, by wrapping it in
 - [Composite](composite.md) — structurally similar (recursive wrapping/composition), but Decorator is about adding behavior to one object, Composite is about representing a whole part-whole tree.
 - [Proxy](proxy.md) — also wraps an object behind the same interface, but Proxy controls *access* to the object (lazy loading, permission checks) rather than adding new behavior/responsibilities.
 - [Strategy](../gof/strategy.md) — Strategy swaps out an entire algorithm; Decorator layers additional behavior around an existing one without replacing it.
+- [Content Enricher](../event-driven/content-enricher.md) — the cross-service analog: both attach additional data/responsibility to something without changing its original shape or the code that produced it.
 
 ## Example
 
