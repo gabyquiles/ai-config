@@ -9,8 +9,11 @@ A single installable unit — a skill, an agent, or an MCP server. The atomic th
 _Avoid_: item, entry, module, plugin
 
 **Target**:
-An AI tool the installer supports (Claude Code, Cursor, and potentially others later). Each target has its own install locations for skills/agents and its own MCP config file/mechanism.
+An AI tool the installer supports (Claude Code, Cursor, Pi, and potentially others later). Each target has its own install locations for skills/agents and its own MCP config file/mechanism. Targets also differ in which element kinds they support, so install is capability-gated per target (see **Skills-only target**).
 _Avoid_: tool, client, platform
+
+**Skills-only target**:
+A target that supports installing skills but not agents or MCP servers. Pi is one: it intentionally has no sub-agents or built-in MCP, so the installer symlinks skills into `~/.pi/agent/skills/` (preserving the category path) and skips agents/MCP for it. The `target_supports` helper in `install.sh` encodes which kinds each target accepts.
 
 **Category**:
 A folder level above an element in the repo's directory tree (e.g. `Engineering`, `Productivity`), used purely to organize and group elements in the installer's picker. Categories have no content of their own — only elements (leaf folders containing a `SKILL.md`/`AGENT.md`/`mcp.json`) do. Nesting depth is arbitrary.

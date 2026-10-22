@@ -1,9 +1,11 @@
 ---
-name: tdd
-description: Test-driven development with red-green-refactor loop. Use when user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development.
+name: implement
+description: TDD-based implementation workflow with a red-green-refactor loop that also documents code with interface and implementation comments. Use when user wants to build a feature, implement something, or fix a bug, mentions "red-green-refactor" or TDD, wants integration tests, or asks for test-first development.
 ---
 
-# Test-Driven Development
+# Implement
+
+The core of this workflow is **test-driven development** (red-green-refactor). After the code is stable, a dedicated commenting phase documents it. Follow the phases in order.
 
 ## Philosophy
 
@@ -96,6 +98,29 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 
 **Never refactor while RED.** Get to GREEN first.
 
+### 5. Comments
+
+Once all tests pass and refactoring is done, document the code. Do this as a
+separate phase against stable code - not during RED/GREEN - so comments describe
+settled interfaces and logic rather than churning with each cycle.
+
+Add two kinds of comments (see [comments.md](comments.md)):
+
+- **Interface comments**: what a module/function/class does and its contract, so
+  a caller doesn't have to read the body.
+- **Implementation comments**: _why_ non-obvious code does what it does - edge
+  cases, invariants, workarounds, surprising decisions.
+
+Rules:
+
+- Comment **especially where the intent is not clear from the code**.
+- Keep the comment's **abstraction level different from the code's** - say
+  _what_ and _why_ at a higher level; don't restate the _how_ line by line.
+- Don't comment the obvious. A comment must add information the code doesn't
+  already state.
+- Use the **language's native doc-comment convention** (PHPDoc, Javadoc,
+  JSDoc/TSDoc, Python docstrings, etc.).
+
 ## Checklist Per Cycle
 
 ```
@@ -104,4 +129,14 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 [ ] Test would survive internal refactor
 [ ] Code is minimal for this test
 [ ] No speculative features added
+```
+
+## Checklist Before Done (Comments)
+
+```
+[ ] Public interfaces documented for callers
+[ ] Non-obvious intent explained (the why, not the what)
+[ ] Comments sit at a different abstraction than the code
+[ ] No comments that merely restate the code
+[ ] Language-native doc-comment style used
 ```

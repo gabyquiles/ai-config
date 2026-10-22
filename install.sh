@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Interactively install skills, agents, and MCP servers from this repo into
-# Claude Code and/or Cursor via symlinks (skills/agents) or config merge (MCP).
+# Claude Code, Cursor, and/or Pi via symlinks (skills/agents) or config merge
+# (MCP). Targets differ in which element kinds they support: Pi is skills-only
+# (no sub-agents or built-in MCP), gated via target_supports.
 # See CONTEXT.md for the terms used here (Element, Target, Category, ...).
 set -euo pipefail
 
@@ -26,10 +28,37 @@ detect_targets() {
     echo "Note: ~/.cursor not found, skipping Cursor."
   fi
 
+  # Pi's global skills live under ~/.pi/agent/skills, so the target dir is
+  # ~/.pi/agent (not ~/.pi).
+  if [[ -d "$HOME/.pi/agent" ]]; then
+    TARGET_NAMES+=("pi")
+    TARGET_DIRS+=("$HOME/.pi/agent")
+  else
+    echo "Note: ~/.pi/agent not found, skipping Pi."
+  fi
+
   if [[ ${#TARGET_NAMES[@]} -eq 0 ]]; then
-    echo "Error: neither Claude Code (~/.claude) nor Cursor (~/.cursor) found on this machine. Nothing to install." >&2
+    echo "Error: no supported target (Claude Code ~/.claude, Cursor ~/.cursor, or Pi ~/.pi/agent) found on this machine. Nothing to install." >&2
     exit 1
   fi
+}
+
+# target_supports <target_name> <kind>
+# kind is one of: skills, agents, mcp. Returns 0 if the target supports
+# installing that element kind, non-zero otherwise. Pi intentionally has no
+# sub-agents or built-in MCP, so it is a skills-only target.
+target_supports() {
+  local target_name="$1" kind="$2"
+  case "$kind" in
+    skills) return 0 ;;
+    agents|mcp)
+      if [[ "$target_name" == "pi" ]]; then
+        return 1
+      fi
+      return 0
+      ;;
+    *) return 1 ;;
+  esac
 }
 
 # find_elements <root_relative_to_repo> <marker_filename>
@@ -211,17 +240,25 @@ main() {
     fi
 
     if [[ ${#selected_agents[@]} -gt 0 ]]; then
-      echo "Agents:"
-      for rel in "${selected_agents[@]}"; do
-        install_symlink "agents" "$rel" "$target_dir"
-      done
+      if target_supports "$target_name" agents; then
+        echo "Agents:"
+        for rel in "${selected_agents[@]}"; do
+          install_symlink "agents" "$rel" "$target_dir"
+        done
+      else
+        echo "Agents: not supported by $target_name, skipping."
+      fi
     fi
 
     if [[ ${#selected_mcps[@]} -gt 0 ]]; then
-      echo "MCP servers:"
-      for rel in "${selected_mcps[@]}"; do
-        install_mcp "$rel" "$target_name" "$target_dir"
-      done
+      if target_supports "$target_name" mcp; then
+        echo "MCP servers:"
+        for rel in "${selected_mcps[@]}"; do
+          install_mcp "$rel" "$target_name" "$target_dir"
+        done
+      else
+        echo "MCP servers: not supported by $target_name, skipping."
+      fi
     fi
   done
 
