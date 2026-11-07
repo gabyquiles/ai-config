@@ -64,6 +64,16 @@ Create issues in dependency order (blockers first) so you can reference real iss
 
 Apply labels for `HITL`/`AFK` and, if a parent/epic exists, tag it — e.g. `gh issue create --label afk`. Labels are a suggestion, not mandatory: if the repo lacks a label, omit it rather than letting the command fail.
 
+If the source is a GitHub parent issue:
+
+- Copy the parent's `prd-*` label (if it has one) onto every slice.
+- After creating each slice, link it as a native sub-issue of the parent. The API takes the slice's numeric `id`, not its issue number:
+  `gh api repos/{owner}/{repo}/issues/<parent>/sub_issues -F sub_issue_id=$(gh api repos/{owner}/{repo}/issues/<slice> -q .id)`
+- For each "Blocked by #X", also add a native dependency:
+  `gh api repos/{owner}/{repo}/issues/<slice>/dependencies/blocked_by -F issue_id=$(gh api repos/{owner}/{repo}/issues/<X> -q .id)`
+  Keep the "Blocked by" section in the body as well.
+- If a linking call fails (e.g. the repo doesn't support sub-issues or dependencies), warn the user and continue. The issue body still records the relationship.
+
 <issue-template>
 ## Parent
 
@@ -105,4 +115,4 @@ Or "None - can start immediately" if no blockers.
 
 </issue-template>
 
-Do NOT close or modify any parent issue.
+Do NOT close the parent issue or edit its body or labels. Adding sub-issue links to it is expected.

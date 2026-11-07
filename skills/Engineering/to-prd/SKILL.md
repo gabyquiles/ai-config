@@ -70,3 +70,11 @@ A description of the things that are out of scope for this PRD.
 Any further notes about the feature.
 
 </prd-template>
+
+4. If the PRD came from a GitHub issue (the user passed an issue number or URL, or one is in the conversation context), link the two:
+
+   - Create the label `prd-<PRD_NUMBER>` if the repo doesn't have it: `gh label create prd-<NNN> --color 1d76db --description "<PRD title> (PRD <NNN>)"`.
+   - Add the label to the source issue: `gh issue edit <n> --add-label prd-<NNN>`. `to-issues` copies this label onto every slice.
+   - If the issue body has a `PRD:` line (e.g. `PRD: TBD`), replace it with the PRD path. Otherwise add a comment: `PRD: prds/<NNN>.<DATE>.md`.
+
+   If any of these commands fail, warn the user and continue. Do not change anything else on the issue.
