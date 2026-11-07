@@ -75,7 +75,7 @@ The script will:
 1. **Detect** which tools are installed on your machine (Claude Code, Cursor, Pi)
 2. **Display** an interactive picker showing available skills, agents, and MCP servers
 3. **Install** selected elements via:
-   - **Symlinks** for skills and agents (preserving category paths)
+   - **Symlinks** for skills and agents. For Cursor and Pi the category path is preserved (`.../skills/<Category>/<name>`). For Claude Code, skills are flattened to a single level (`~/.claude/skills/<name>`), because Claude Code only discovers skills one directory deep.
    - **Config merge** for MCP servers
 
 ### Supported Targets
@@ -101,7 +101,7 @@ A folder level organizing elements (e.g., `Engineering`, `Research`, `Tools`). U
 
 ### Install Mechanics
 
-**Skills & Agents:** Created as symlinks from the target's directory to the element's folder in this repo, preserving category paths.
+**Skills & Agents:** Created as symlinks from the target's directory to the element's folder in this repo. The symlink source keeps the full category path; the destination depends on the target. Cursor and Pi preserve category paths (`.../skills/<Category>/<name>`). Claude Code flattens skills to `~/.claude/skills/<name>` because it only discovers skills one directory deep. Agents are never flattened.
 
 **MCP Servers:** Merged as JSON entries into the target's MCP config file (`~/.claude/config.json`, `~/.cursor/mcp.json`, etc.).
 
@@ -157,6 +157,7 @@ Select them from the respective tool's UI or invoke them via commands/shortcuts.
 
 - Verify symlinks with: `ls -la ~/.claude/skills/` or `ls -la ~/.pi/agent/skills/`
 - Symlinks should point to folders in this repo, e.g., `ai-config/skills/Engineering/...`
+- Claude Code skills are flattened: expect `~/.claude/skills/<name>` (no category subfolder). Pi/Cursor keep the category subfolder, e.g. `~/.pi/agent/skills/Engineering/<name>`.
 
 ## Contributing
 

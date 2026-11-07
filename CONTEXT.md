@@ -20,7 +20,7 @@ A folder level above an element in the repo's directory tree (e.g. `Engineering`
 _Avoid_: group, folder (when referring to the organizational concept, not the filesystem mechanism)
 
 **Install** (skills/agents):
-Creating a symlink from a target's directory (e.g. `~/.claude/skills/...`) to the element's folder in this repo, preserving the category path exactly.
+Creating a symlink from a target's directory (e.g. `~/.claude/skills/...`) to the element's folder in this repo. The symlink _source_ always keeps the full category path (`skills/<Category>/<name>`). The _destination_ path depends on the target: Cursor and Pi preserve the category path (`.../skills/<Category>/<name>`), but Claude Code flattens skills to a single level (`~/.claude/skills/<name>`) because Claude Code only discovers skills one directory deep under `~/.claude/skills/` — a category subfolder would hide them. Flattening is keyed off the target name in `install.sh`'s skills loop and applied via the `flatten` argument to `install_symlink`; agents are never flattened. Leaf names must stay unique across categories so flattening cannot collide (they are today).
 
 **Install** (MCP servers):
 Merging the element's canonical JSON definition into a target's MCP config (`claude mcp add-json` at user scope for Claude Code; a `jq`-driven merge into `~/.cursor/mcp.json` for Cursor). Never symlinked — an MCP server is a JSON entry inside a shared config file, not a standalone file/folder, so symlinking doesn't apply.

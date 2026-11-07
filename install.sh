@@ -126,13 +126,22 @@ prompt_selection() {
   done
 }
 
-# install_symlink <type_root> <rel_path> <target_dir>
+# install_symlink <type_root> <rel_path> <target_dir> [flatten]
 # type_root: "skills" or "agents". rel_path: element path relative to
 # <type_root>/, preserving any category nesting.
+# flatten: when "flatten", the destination drops the category prefix and uses
+# only the leaf name (e.g. skills/design-patterns instead of
+# skills/Engineering/design-patterns). The symlink SOURCE always keeps the
+# full category path. Claude Code needs this because it only discovers skills
+# one directory deep under ~/.claude/skills/; Cursor and Pi preserve nesting.
 install_symlink() {
-  local type_root="$1" rel_path="$2" target_dir="$3"
+  local type_root="$1" rel_path="$2" target_dir="$3" flatten="${4:-}"
   local src="$REPO_ROOT/$type_root/$rel_path"
-  local dest="$target_dir/$type_root/$rel_path"
+  local dest_rel="$rel_path"
+  if [[ "$flatten" == "flatten" ]]; then
+    dest_rel="$(basename "$rel_path")"
+  fi
+  local dest="$target_dir/$type_root/$dest_rel"
 
   mkdir -p "$(dirname "$dest")"
 
@@ -233,9 +242,15 @@ main() {
 
     if [[ ${#selected_skills[@]} -gt 0 ]]; then
       echo "Skills:"
+      # Claude Code only discovers skills one level deep, so flatten the
+      # category prefix for it. Cursor and Pi keep the category nesting.
+      local skill_flatten=""
+      if [[ "$target_name" == "claude" ]]; then
+        skill_flatten="flatten"
+      fi
       local rel
       for rel in "${selected_skills[@]}"; do
-        install_symlink "skills" "$rel" "$target_dir"
+        install_symlink "skills" "$rel" "$target_dir" "$skill_flatten"
       done
     fi
 
