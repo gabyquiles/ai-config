@@ -30,3 +30,28 @@ The single JSON shape stored per server in this repo (`mcp/<name>/mcp.json`), us
 
 **skills-v2**:
 A separate, in-progress rework of some skills, unrelated to the installer. Excluded entirely from selection — not read, not listed, not installed.
+
+**Workflow skill**:
+A skill that orchestrates other skills and agents across several steps, handing artifacts between them (e.g. `ship-issue`). The skill itself does little work directly; it sequences specialists.
+_Avoid_: pipeline, team
+
+**Orchestrator**:
+The main agent running a workflow skill. It is the only participant that talks to the user, holds the evals, touches git, and opens the PR. Every other participant is a subagent it spawns.
+
+**Eval**:
+A check written from a GitHub issue before implementation starts: a scenario checklist (Given/When/Then plus an exact way to verify each one) together with executable acceptance tests. Evals are **hold-out**: the implementer never sees them while working. They are only run by the verifier, and are committed to the test suite once the change passes.
+_Avoid_: spec, test plan
+
+**Fix round**:
+One pass in which the implementer fixes the reported failures, followed by a fresh verify-and-review pass. A workflow allows a fixed number of them (three in `ship-issue`) before handing control back to the user.
+
+**Blocking finding**:
+A review finding with severity `blocker` or `major`. It fails a round. A `minor` finding never blocks; it is carried into the PR as a follow-up.
+
+**Manual validation step**:
+A check of deployed behavior, written into a PR's `Manual validation` section and run against the **Shared dev environment** after a deploy. Unlike an **Eval**, it isn't hold-out and doesn't run locally. An agent runs it when it can; a human confirms it when it can't be automated.
+_Avoid_: smoke test, QA step
+
+**Shared dev environment**:
+The single non-production environment that `make deploy` targets. Deploying a PR there overwrites whatever was deployed before.
+_Avoid_: staging, sandbox

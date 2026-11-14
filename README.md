@@ -44,6 +44,8 @@ Located in `skills/`, organized by category:
 - **to-prd** — Convert plans into Product Requirements Documents
 - **to-issues** — Break down specs into GitHub issues
 - **grill-with-docs** — Stress-test plans against domain models and documentation
+- **ship-issue** — Workflow: take a GitHub issue to a reviewed PR (hold-out evals, implement, parallel verify + review, capped fix loop)
+- **validate-pr** — Workflow: deploy a PR's worktree to the shared dev env and run its manual validation steps, reporting results on the PR
 
 #### Research
 - **grill-me** — Interview and stress-test design decisions
