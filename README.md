@@ -1,180 +1,169 @@
 # ai-config
 
-A personal repository of Claude Code **skills**, **agents**, and **MCP server definitions**, installable into AI coding tools on your machine via an automated install script.
+A personal collection of AI coding-tool **skills**, **agents**, and **MCP server definitions**, installed into Claude Code, Cursor, and Pi by a single interactive script.
 
-## Overview
+Everything lives in this repo as the source of truth. The installer symlinks skills and agents into each tool, so edits here take effect immediately — no reinstall needed.
 
-This repository provides reusable AI tool extensions for:
-- **Claude Code**
-- **Cursor**
-- **Pi** (skills-only target)
+## Quick start
 
-All elements are managed and installed via a single, interactive install script that handles symlinks (for skills/agents) and config merges (for MCP servers).
-
-## Project Structure
-
-```
-ai-config/
-├── skills/                    # Reusable skill packs organized by category
-│   ├── Engineering/          # Software engineering, architecture, and design skills
-│   ├── Research/             # Research and discovery-focused skills
-│   └── Tools/                # Tool integration skills
-├── agents/                    # Specialized AI agent configurations
-│   ├── aws-solutioner/
-│   ├── qa-engineer/
-│   └── senior-developer/
-├── mcp/                       # MCP server definitions
-├── docs/                      # Additional documentation
-├── install.sh                 # Main installation script
-├── CONTEXT.md                 # Terminology and conceptual guide
-└── Makefile                   # Build and utility commands
+```bash
+git clone <this-repo> ~/ai-config
+cd ~/ai-config
+make install        # or: ./install.sh
 ```
 
-## What's Included
+The installer:
+
+1. Detects which supported tools exist on this machine.
+2. Lists every skill, agent, and MCP server it finds and asks which to install (comma-separated numbers, `a` for all, blank to skip).
+3. Installs your selection into every detected tool that supports it.
+
+Re-running is safe: existing correct links are reported as `[ok]`, links pointing elsewhere are `[relink]`ed, and real files or directories already at a destination are `[skip]`ped and never overwritten.
+
+### Requirements
+
+- `bash` (works with the macOS default bash 3.2)
+- At least one supported tool installed (see below)
+- For MCP servers only: [`jq`](https://jqlang.github.io/jq/) (`brew install jq`), and the `claude` CLI on `PATH` for Claude Code
+- For linting: [`shellcheck`](https://www.shellcheck.net/)
+
+## Supported tools (targets)
+
+| Target      | Detected by    | Skills | Agents | MCP servers |
+|-------------|----------------|:------:|:------:|:-----------:|
+| Claude Code | `~/.claude`    | ✅ | ✅ | ✅ |
+| Cursor      | `~/.cursor`    | ✅ | ✅ | ✅ |
+| Pi          | `~/.pi/agent`  | ✅ | — | — |
+
+Pi is a skills-only target by design: it has no sub-agents or built-in MCP, so the installer skips agents and MCP servers for it.
+
+### Where things are installed
+
+| Element | Claude Code | Cursor | Pi |
+|---------|-------------|--------|----|
+| Skill   | `~/.claude/skills/<name>` (flattened) | `~/.cursor/skills/<Category>/<name>` | `~/.pi/agent/skills/<Category>/<name>` |
+| Agent   | `~/.claude/agents/<name>` | `~/.cursor/agents/<name>` | — |
+| MCP     | `claude mcp add-json <name> … --scope user` | merged into `~/.cursor/mcp.json` under `mcpServers` | — |
+
+Claude Code only discovers skills one directory deep, so its skill links drop the category folder. Skill names therefore have to stay unique across categories.
+
+## What's included
 
 ### Skills
 
-Located in `skills/`, organized by category:
+**Engineering** (`skills/Engineering/`)
 
-#### Engineering
-- **software-architect** — Design new software architecture with C4 diagrams and arc42 documentation
-- **design-patterns** — Guidance on Gang of Four and event-driven architecture patterns
-- **implement** — TDD-based implementation workflow with red-green-refactor loop
-- **improve-codebase-architecture** — Identify architectural refactoring opportunities
-- **to-prd** — Convert plans into Product Requirements Documents
-- **to-issues** — Break down specs into GitHub issues
-- **grill-with-docs** — Stress-test plans against domain models and documentation
+| Skill | What it does |
+|-------|--------------|
+| `software-architect` | Designs and documents architecture: C4 diagrams in Mermaid, an arc42 doc tree, and UML where needed. Also retrofits docs onto existing systems. |
+| `design-patterns` | On-demand reference for the 23 GoF patterns and event-driven patterns (sagas, CQRS, event sourcing, …), with TypeScript examples. |
+| `implement` | TDD red-green-refactor workflow that also writes interface and implementation comments. |
+| `improve-codebase-architecture` | Finds refactoring opportunities, mainly by deepening shallow modules to make code easier to test. |
+| `grill-with-docs` | Stress-tests a plan against the project's domain model and updates `CONTEXT.md` and ADRs inline. |
+| `to-prd` | Turns the current conversation into a PRD. |
+| `to-issues` | Breaks a plan or PRD into GitHub issues, one vertical slice each. |
+| `ship-issue` | Workflow skill: takes a GitHub issue to a reviewed PR (hold-out evals, implement, parallel verify + review, up to 3 fix rounds). |
+| `validate-pr` | Workflow skill: deploys a PR's worktree to the shared dev environment, has a QA agent run its manual validation steps, and posts the results on the PR. |
 
-#### Research
-- **grill-me** — Interview and stress-test design decisions
-- **ontology-interview** — Build domain ontologies and knowledge maps
+**Research** (`skills/Research/`)
 
-#### Tools
-- **gh-github** — GitHub CLI integration for repos, issues, PRs, and Projects v2
+| Skill | What it does |
+|-------|--------------|
+| `grill-me` | Interviews you relentlessly about a plan until every branch of the decision tree is resolved. |
+| `ontology-interview` | Interviews you one question at a time to build a business ontology (YAML), a Mermaid flowchart, and test questions. |
+
+**Tools** (`skills/Tools/`)
+
+| Skill | What it does |
+|-------|--------------|
+| `gh-github` | Uses the `gh` CLI to manage GitHub repos, issues, PRs, and Projects v2. |
 
 ### Agents
 
-Specialized agent personas for specific tasks:
-- **aws-solutioner** — AWS architecture and solutions
-- **qa-engineer** — Quality assurance and testing strategies
-- **senior-developer** — Expert code review and architecture guidance
+| Agent | Purpose |
+|-------|---------|
+| `aws-solutioner` | AWS solutions architect grounded in the Well-Architected Framework. |
+| `qa-engineer` | Tests from the user's side, hunts edge cases, and validates behavior in a deployed dev environment. |
+| `senior-developer` | Enforces SOLID, DRY, TDD, and readability in reviews and implementation. |
 
-### MCP Servers
+### MCP servers
 
-Model Context Protocol servers for extending tool capabilities (defined in `mcp/`).
+None are defined yet. `mcp/` is ready for them (see [Adding an MCP server](#adding-an-mcp-server)).
 
-## Installation
+## Repository layout
 
-### Quick Start
-
-```bash
-./install.sh
+```
+ai-config/
+├── skills/<Category>/<name>/SKILL.md   # one folder per skill, plus any supporting .md files
+├── agents/<name>/AGENT.md              # one folder per agent
+├── mcp/<name>/mcp.json                 # one folder per MCP server
+├── docs/adr/                           # architecture decision records
+├── install.sh                          # interactive installer
+├── CONTEXT.md                          # glossary and conceptual model
+└── Makefile
 ```
 
-The script will:
-1. **Detect** which tools are installed on your machine (Claude Code, Cursor, Pi)
-2. **Display** an interactive picker showing available skills, agents, and MCP servers
-3. **Install** selected elements via:
-   - **Symlinks** for skills and agents. For Cursor and Pi the category path is preserved (`.../skills/<Category>/<name>`). For Claude Code, skills are flattened to a single level (`~/.claude/skills/<name>`), because Claude Code only discovers skills one directory deep.
-   - **Config merge** for MCP servers
-
-### Supported Targets
-
-| Target | Skills | Agents | MCP |
-|--------|--------|--------|-----|
-| Claude Code | ✅ | ✅ | ✅ |
-| Cursor | ✅ | ✅ | ✅ |
-| Pi | ✅ | ❌ | ❌ |
-
-**Note:** Pi is a skills-only target. Agents and MCP servers are not supported (by design).
-
-## Key Concepts
-
-### Element
-A single installable unit—a **skill**, an **agent**, or an **MCP server**. The atomic thing you select in the installer.
-
-### Target
-An AI tool supported by the installer (Claude Code, Cursor, Pi). Each target has its own install locations and capabilities.
-
-### Category
-A folder level organizing elements (e.g., `Engineering`, `Research`, `Tools`). Used to group related skills in the installer's picker.
-
-### Install Mechanics
-
-**Skills & Agents:** Created as symlinks from the target's directory to the element's folder in this repo. The symlink source keeps the full category path; the destination depends on the target. Cursor and Pi preserve category paths (`.../skills/<Category>/<name>`). Claude Code flattens skills to `~/.claude/skills/<name>` because it only discovers skills one directory deep. Agents are never flattened.
-
-**MCP Servers:** Merged as JSON entries into the target's MCP config file (`~/.claude/config.json`, `~/.cursor/mcp.json`, etc.).
-
-## Usage
-
-Once installed, skills and agents are available in:
-- **Claude Code** — `/Applications/Claude.app` or command line via `claude`
-- **Cursor** — Built into the Cursor editor
-- **Pi** — `~/.pi/agent/skills/`
-
-Select them from the respective tool's UI or invoke them via commands/shortcuts.
-
-## Documentation
-
-- **CONTEXT.md** — Detailed terminology, conceptual model, and design decisions
-- **docs/** — Additional guides and specifications
-- Each skill/agent includes its own `SKILL.md` or `AGENT.md` with usage details
+A folder counts as an element only when it holds its marker file (`SKILL.md`, `AGENT.md`, or `mcp.json`). Folders above it are **categories**: they only group elements in the picker and can be nested to any depth.
 
 ## Development
 
-### Adding a New Skill
+### Make targets
 
-1. Create a folder: `skills/<Category>/<skill-name>/`
-2. Add a `SKILL.md` file with:
-   - Description
-   - When to use it
-   - How to invoke it
-   - Example usage
+| Target | Runs |
+|--------|------|
+| `make install` | `./install.sh` |
+| `make lint` | `shellcheck install.sh` |
+| `make test` | `bash -n install.sh` (syntax check) |
 
-3. Run `./install.sh` and select your new skill
+Before committing, run `make lint` and `make test` and make sure both pass.
 
-### Adding a New Agent
+### Adding a skill
 
-1. Create a folder: `agents/<agent-name>/`
-2. Add an `AGENT.md` file describing the agent's purpose and behavior
-3. Add supporting files (prompts, instructions, etc.)
-4. Run `./install.sh` to install
+1. Create `skills/<Category>/<skill-name>/SKILL.md` with YAML frontmatter:
+   ```markdown
+   ---
+   name: skill-name
+   description: What it does and when to use it (this is what the tool matches on).
+   ---
+   ```
+2. Put any supporting reference files next to it. The skill loads them on demand.
+3. Make sure the name doesn't clash with a skill in another category.
+4. Run `./install.sh` and select it.
 
-### Adding MCP Servers
+### Adding an agent
 
-1. Create a folder: `mcp/<server-name>/`
-2. Add `mcp.json` with the server definition
-3. Run `./install.sh` to merge the config
+1. Create `agents/<agent-name>/AGENT.md` describing the agent's role, behavior, and tools.
+2. Run `./install.sh` and select it.
+
+### Adding an MCP server
+
+1. Create `mcp/<server-name>/mcp.json` using Claude Code's schema. Cursor uses the same shape, so one file serves both:
+   ```json
+   { "type": "http", "url": "https://example.com/mcp" }
+   ```
+   or
+   ```json
+   { "type": "stdio", "command": "npx", "args": ["-y", "some-server"], "env": {} }
+   ```
+2. Run `./install.sh` and select it.
 
 ## Troubleshooting
 
-### Installation Issues
+- **"no supported target found"**: none of `~/.claude`, `~/.cursor`, or `~/.pi/agent` exist. Install or launch one of those tools first.
+- **`[skip] … real file/dir at …`**: a non-symlink is already at the destination. Move or delete it yourself, then re-run.
+- **Skill not showing up in Claude Code**: check that `~/.claude/skills/<name>` exists with no category subfolder, and that it points into this repo (`ls -la ~/.claude/skills/`).
+- **MCP install fails**: install `jq`, and for Claude Code make sure `claude` is on your `PATH`.
 
-- **Target not found:** Ensure you have Claude Code (`~/.claude`), Cursor (`~/.cursor`), or Pi (`~/.pi/agent`) installed
-- **Permission denied:** The installer requires write access to target directories
+## Further reading
 
-### Symlink Issues
-
-- Verify symlinks with: `ls -la ~/.claude/skills/` or `ls -la ~/.pi/agent/skills/`
-- Symlinks should point to folders in this repo, e.g., `ai-config/skills/Engineering/...`
-- Claude Code skills are flattened: expect `~/.claude/skills/<name>` (no category subfolder). Pi/Cursor keep the category subfolder, e.g. `~/.pi/agent/skills/Engineering/<name>`.
-
-## Contributing
-
-To add or modify elements:
-1. Create or edit the element folder
-2. Update or create `SKILL.md`, `AGENT.md`, or `mcp.json`
-3. Test with `./install.sh`
-4. Commit and push
+- [`CONTEXT.md`](CONTEXT.md): the project glossary (Element, Target, Category, Workflow skill, Eval, …)
+- [`docs/adr/`](docs/adr/): decisions such as installing MCP by config merge and how pattern families are organized
+- Each element's own `SKILL.md` / `AGENT.md`: full usage details
 
 ## License
 
-[Your license here]
+[MIT](LICENSE). Some skills are derived from [mattpocock/skills](https://github.com/mattpocock/skills) (also MIT); see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ## Author
 
-Gaby Quiles
-
----
-
-**Questions?** See `CONTEXT.md` for terminology and design decisions, or check individual element documentation.
+Gabriel Quiles
