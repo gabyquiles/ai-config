@@ -160,6 +160,10 @@ Before committing, run `make lint` and `make test` and make sure both pass.
 - [`docs/adr/`](docs/adr/): decisions such as installing MCP by config merge and how pattern families are organized
 - Each element's own `SKILL.md` / `AGENT.md`: full usage details
 
+## License
+
+[MIT](LICENSE). Some skills are derived from [mattpocock/skills](https://github.com/mattpocock/skills) (also MIT); see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
 ## Author
 
 Gabriel Quiles
