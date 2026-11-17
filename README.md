@@ -159,3 +159,7 @@ Before committing, run `make lint` and `make test` and make sure both pass.
 - [`CONTEXT.md`](CONTEXT.md): the project glossary (Element, Target, Category, Workflow skill, Eval, …)
 - [`docs/adr/`](docs/adr/): decisions such as installing MCP by config merge and how pattern families are organized
 - Each element's own `SKILL.md` / `AGENT.md`: full usage details
+
+## Author
+
+Gabriel Quiles
