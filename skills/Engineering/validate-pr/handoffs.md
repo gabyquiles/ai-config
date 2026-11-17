@@ -38,7 +38,7 @@ Agent: `qa-engineer`, name: `validator`.
 > **Manual validation steps** (run them exactly as written):
 > <steps verbatim>
 >
-> For each step, perform the action against the deployed environment and compare with `Expected:`. Use whatever fits: `curl`, CLIs, reading logs, or Claude in Chrome for UI steps.
+> For each step, perform the action against the deployed environment and compare with `Expected:`. Use whatever fits: `curl`, CLIs, reading logs, or Claude in Chrome for UI steps. Prefix AWS CLI commands with `AWS_PROFILE=dev AWS_REGION=us-east-1` so you check the same account and region that was deployed to.
 >
 > Constraints:
 > - You can't ask the user anything. If you're blocked, report it.

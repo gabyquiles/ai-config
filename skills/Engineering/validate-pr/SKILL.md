@@ -1,6 +1,6 @@
 ---
 name: validate-pr
-description: Deploy a pull request to the shared dev environment and run its manual validation steps — find or create the PR's worktree, sync it to the PR head, run `make install` and `make deploy`, have a fresh QA agent execute the PR's "Manual validation" section (handing un-automatable steps to the user), and post the results as a PR comment. Use when the user wants to validate, deploy and test, or QA a PR in a deployed environment, or says "/validate-pr #N".
+description: Deploy a pull request to the shared dev environment and run its manual validation steps — find or create the PR's worktree, sync it to the PR head, copy `terraform/terraform.tfvars` and `terraform/backend.dev.hcl` from the main checkout, run `make install`, then `make tf-init` and `make deploy` with `ENV=dev AWS_PROFILE=dev AWS_REGION=us-east-1`, have a fresh QA agent execute the PR's "Manual validation" section (handing un-automatable steps to the user), and post the results as a PR comment. Use when the user wants to validate, deploy and test, or QA a PR in a deployed environment, or says "/validate-pr #N".
 ---
 
 # Validate PR
@@ -10,7 +10,7 @@ A **workflow skill**: you are the **orchestrator**. You own every interaction wi
 Invocation: `/validate-pr <PR number | PR URL>`. If no PR is given, ask for one.
 
 ```
-Preflight → Worktree (sync to PR head) → Confirm → make install → make deploy → Validate (qa-engineer) → Human steps (HITL) → PR comment
+Preflight → Worktree (sync to PR head, copy tfvars + backend config) → Confirm → make install → make tf-init → make deploy → Validate (qa-engineer) → Human steps (HITL) → PR comment
 ```
 
 This is the deployed-environment counterpart to `ship-issue`, which only verifies locally. It **reports only**: it never changes code, commits, or pushes.
@@ -33,12 +33,22 @@ The goal is a worktree whose `HEAD` is exactly the PR head. Never modify the use
    - ahead of `origin/<headRefName>` (`git rev-list --count origin/<headRefName>..HEAD` > 0) → **stop and ask**, same reason.
    - behind → `git merge --ff-only origin/<headRefName>`.
 5. Record `git rev-parse HEAD` as the **deployed SHA** and check it equals `headRefOid`. If it doesn't, stop and report.
+6. Copy local Terraform config. These files are usually gitignored, so a fresh worktree doesn't have them. Do this for each of `terraform/terraform.tfvars` and `terraform/backend.dev.hcl` (the backend config for `ENV=dev`):
+   - The **main checkout** is the first `worktree` entry in `git worktree list --porcelain`.
+   - If `<main checkout>/<file>` exists and the file is **not** tracked in the worktree (`git -C <worktree> ls-files --error-unmatch <file>` fails), copy it to `<worktree>/<file>`. Create `terraform/` if needed, and overwrite any copy already there so it matches the main checkout.
+   - If the file is tracked, don't copy it: the PR's own version is what's under review.
+   - If the source doesn't exist, skip it and mention it to the user. It isn't an error.
 
 ## Step 2 — Install and deploy
 
-1. Check the worktree's Makefile has both targets: `make -n install` and `make -n deploy`. If either is missing, stop and tell the user.
-2. **Confirm with the user** before deploying: "Deploying `<short SHA>` of PR #<n> to the shared dev environment. This overwrites whatever is deployed there. Continue?" Only run `make deploy` exactly as defined. Never add prod/stage arguments or environment overrides.
-3. In the worktree, run `make install`, then `make deploy`. If either fails, stop and show the user the last ~50 lines of output. Don't retry or attempt a fix.
+1. Check the worktree's Makefile has the required targets: `make -n install` and `make -n deploy`. If either is missing, stop and tell the user. `tf-init` is optional: run it only if `make -n tf-init` succeeds.
+2. **Confirm with the user** before deploying: "Deploying `<short SHA>` of PR #<n> to the shared dev environment (`ENV=dev`, `AWS_PROFILE=dev`, `AWS_REGION=us-east-1`). This overwrites whatever is deployed there. Continue?" Run each make target exactly as defined, with only the `ENV=dev AWS_PROFILE=dev AWS_REGION=us-east-1` prefix. Never add other arguments or overrides (no prod/stage arguments).
+3. In the worktree, run in order:
+   1. `make install`
+   2. `ENV=dev AWS_PROFILE=dev AWS_REGION=us-east-1 make tf-init` (if the target exists)
+   3. `ENV=dev AWS_PROFILE=dev AWS_REGION=us-east-1 make deploy`
+
+   If any of them fails, stop and show the user the last ~50 lines of output. Don't retry or attempt a fix.
 4. From the deploy output, capture anything the validator will need: URLs, endpoints, stack outputs, resource names.
 
 ## Step 3 — Validate
@@ -62,5 +72,6 @@ For each `needs-human` step, ask the user **one at a time**: show the action, th
 - Only the orchestrator talks to the user or touches GitHub. The validator prompt must say it can't ask questions and must not modify code or GitHub.
 - No commits, pushes, or code changes. A failure is reported, not fixed. The user decides whether to send it back through `ship-issue`.
 - Deploy only the exact PR head, and only after the user confirms.
+- `make tf-init` and `make deploy` always run with `ENV=dev AWS_PROFILE=dev AWS_REGION=us-east-1`.
 - Run every step even after a failure, unless it depends on a failed step (then it's `blocked`).
 - Never reword or weaken a step to make it pass. If a step looks wrong, report it as such.
